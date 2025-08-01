@@ -1491,7 +1491,7 @@ impl Backend for DockerBackend {
             .arg("-i")
             .args(["-a", "stdin", "-a", "stdout", "-a", "stderr"])
             .arg("--rm")
-            .arg("rust-wasm")
+            .arg("rust-stable")
             .arg("worker")
             .arg("/wasmbuild");
 
