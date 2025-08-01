@@ -11,8 +11,8 @@ APP_DIR="/opt/${APP_NAME}"
 BINARY_NAME="${APP_NAME}"
 # The location of the pre-compiled binary.
 # Update this path to point to your actual compiled binary.
-BINARY_LOCATION="../target/release/service-compiler"
-COMPILER_SRC_DIR="../compiler" # Source directory for the compiler build scripts
+BINARY_LOCATION="./target/release/service-compiler"
+COMPILER_SRC_DIR="./compiler" # Source directory for the compiler build scripts
 SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
 SUDOERS_FILE="/etc/sudoers.d/${SERVICE_USER}"
 ENV_FILE="/etc/default/${APP_NAME}" # Secure environment file for secrets
@@ -53,7 +53,7 @@ fi
 # 1. Install Dependencies (will skip if already installed)
 print_info "Ensuring podman and podman-docker are installed..."
 # Using pacman as per the original script. Adjust for other package managers if needed.
-pacman -Syu --noconfirm podman podman-docker podman-compose
+pacman -Syu --noconfirm podman podman-compose
 
 # 2. Create Application Directory and Copy Binary
 if [ ! -d "${APP_DIR}" ]; then
