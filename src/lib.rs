@@ -4,7 +4,6 @@ pub mod service;
 use std::net::SocketAddr;
 
 use anyhow::Context;
-use futures::future;
 use thiserror::Error;
 
 pub use client::CompilerClient;
@@ -49,17 +48,11 @@ pub trait WasmCompiler {
     async fn compile(request: CompileRequest) -> Result<CompileResponse, CompilerError>;
 }
 
-pub async fn connect_env() -> anyhow::Result<Vec<CompilerClient>> {
+pub async fn connect_env() -> anyhow::Result<CompilerClient> {
     let compiler_addr_str =
         std::env::var("COMPILER").with_context(|| "COMPILER environment variable should be set")?;
     
-    let connection_futures = compiler_addr_str
-        .split(',')
-        .map(|s| s.trim())
-        .filter(|s| !s.is_empty())
-        .map(connect)
-        .collect::<Vec<_>>();
-    future::join_all(connection_futures).await.into_iter().collect()
+    connect(&compiler_addr_str).await
 }
 
 
@@ -138,8 +131,7 @@ mod tests {
     async fn test_compile_grader_basic() {
         tracing::debug!("Starting test_compile_grader_basic");
         dotenv::dotenv().unwrap();
-        let clients = connect_env().await.unwrap();
-        let client = &clients[0];
+        let client = connect_env().await.unwrap();
 
         let grader_code = r#"
 fn call(output: &str, target: &str) -> Result<f32, String> {
