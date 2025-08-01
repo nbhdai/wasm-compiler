@@ -56,6 +56,7 @@ impl WasmCompiler for WasmCompilerService {
         _ctx: context::Context,
         request: CompileRequest,
     ) -> Result<CompileResponse, CompilerError> {
+        println!("====COMPILING====\n {}", request.code);
         // Generate a unique SHA for this compilation request.
         use sha2::{Digest, Sha256};
         let mut hasher = Sha256::new();

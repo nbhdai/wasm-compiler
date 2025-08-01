@@ -22,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
     // Initialize tracing
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
-            "service_compiler=debug,tarpc=info,orchestrator=debug",
+            "service_compiler=debug,tarpc=info,orchestrator=trace",
         ))
         .with(tracing_subscriber::fmt::layer())
         .init();

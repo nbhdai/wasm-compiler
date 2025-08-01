@@ -214,7 +214,7 @@ pub struct CompileRequest {
 }
 
 impl CompileRequest {
-    const OUTPUT_PATH: &str = "compilation";
+    const OUTPUT_PATH: &str = "module";
 
     fn read_output_request(&self) -> ReadFileRequest {
         ReadFileRequest {
@@ -677,7 +677,7 @@ impl Container {
         token: CancellationToken,
     ) -> Result<SpawnCargo, DoRequestError> {
         use do_request_error::*;
-
+        tracing::debug!("Deleting the previous main");
         let delete_previous_main = async {
             self.commander
                 .one(request.delete_previous_main_request())
@@ -686,6 +686,7 @@ impl Container {
                 .map(drop::<crate::message::DeleteFileResponse>)
         };
 
+        tracing::debug!("Writing the new main");
         let write_main = async {
             self.commander
                 .one(request.write_main_request())
@@ -694,6 +695,7 @@ impl Container {
                 .map(drop::<crate::message::WriteFileResponse>)
         };
 
+        tracing::debug!("Editing the the cargo");
         let modify_cargo_toml = async {
             self.modify_cargo_toml
                 .modify_for(&request)
@@ -1394,6 +1396,7 @@ pub trait Backend {
         &self,
         id: impl fmt::Display,
     ) -> Result<(Child, TerminateContainer, ChildStdin, ChildStdout)> {
+        tracing::debug!("Starting container");
         let (mut start, kill) = self.prepare_worker_command(id);
 
         let mut child = start
@@ -1404,6 +1407,7 @@ pub trait Backend {
             .context(SpawnWorkerSnafu)?;
         let stdin = child.stdin.take().context(WorkerStdinCaptureSnafu)?;
         let stdout = child.stdout.take().context(WorkerStdoutCaptureSnafu)?;
+        tracing::debug!(id=child.id(), "Have container");
         Ok((child, kill, stdin, stdout))
     }
 
@@ -1487,7 +1491,7 @@ impl Backend for DockerBackend {
             .arg("-i")
             .args(["-a", "stdin", "-a", "stdout", "-a", "stderr"])
             .arg("--rm")
-            .arg("rust-stable")
+            .arg("rust-wasm")
             .arg("worker")
             .arg("/wasmbuild");
 

@@ -30,6 +30,8 @@ print_warn() {
     echo -e "\e[33m[WARN]\e[0m $1"
 }
 
+source .env
+
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
@@ -100,7 +102,7 @@ print_info "Building container images as user '${SERVICE_USER}'..."
 # The `sudo -u ... -H` ensures the environment is set up correctly for the user.
 # The `bash -c '...'` allows us to run multiple commands in a subshell,
 # so the main script's working directory does not change.
-sudo -u "${SERVICE_USER}" -H bash -c "cd '${APP_DIR}/compiler' && bash build.sh"
+sudo -u "${SERVICE_USER}" -H bash -c "cd '${APP_DIR}/compiler' && CR_PAT=$CR_PAT bash fetch.sh"
 print_success "Container images built successfully."
 
 

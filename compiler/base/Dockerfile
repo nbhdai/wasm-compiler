@@ -82,9 +82,9 @@ FROM chef-available as build-orchestrator
 COPY --chown=wasmbuild asm-cleanup /asm-cleanup
 COPY --chown=wasmbuild modify-cargo-toml /modify-cargo-toml
 COPY --chown=wasmbuild --from=prepare-orchestrator /orchestrator/recipe.json /orchestrator/recipe.json
-RUN cargo chef cook --release
+RUN cargo chef cook --locked --release
 COPY --chown=wasmbuild orchestrator /orchestrator
-RUN cargo install --path .
+RUN cargo install --locked --path .
 
 # Compiler and pre-compiled crates
 FROM sources 
@@ -94,6 +94,9 @@ COPY lib.rs src/lib.rs
 RUN cargo build --target=wasm32-unknown-unknown
 RUN cargo build --target=wasm32-unknown-unknown --release
 RUN rm src/*.rs
+
+COPY clean_up.sh .
+RUN ./clean_up.sh
 
 COPY --from=build-orchestrator /wasmbuild/.cargo/bin/worker /wasmbuild/.cargo/bin/worker
 COPY --from=wasm-tools /wasmbuild/.cargo/bin/wasm-tools /wasmbuild/.cargo/bin

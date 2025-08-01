@@ -30,7 +30,6 @@ fn call(output: &str, target: &str) -> Result<f32, String> {
     }
 }
         
-// Your Rust code must include the 'call' function.
 #[plugin_fn]
 pub fn call_external(Json((output, target)): Json<(String, String)>) -> FnResult<Json<Result<f32, String>>> {
     Ok(Json(call(output.as_str(), target.as_str())))
