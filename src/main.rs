@@ -29,10 +29,10 @@ async fn main() -> anyhow::Result<()> {
 
     // Get configuration from environment
     let port = std::env::var("WASM_COMPILER_PORT")
-        .unwrap_or_else(|_| "8080".to_string())
+        .unwrap_or_else(|_| "7070".to_string())
         .parse::<u16>()?;
 
-    let addr: SocketAddr = "0.0.0.0:8080".parse()?;
+    let addr: SocketAddr = "0.0.0.0:7070".parse()?;
 
     // Create compiler server
     let service = WasmCompilerService::new().await?;
