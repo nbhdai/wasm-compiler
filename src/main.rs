@@ -41,21 +41,28 @@ async fn main() -> anyhow::Result<()> {
     listener.config_mut().max_frame_length(usize::MAX);
     listener
         // Ignore accept errors.
-        .filter_map(|r| match r {
-            Ok(r) => {
-                tracing::debug!("Connection");
-                future::ready(Some(r))
-            }
-            Err(err) => {
-                tracing::error!(?err, "No Connection");
-                future::ready(None)
-            }
-        })
+        .filter_map(|connection_result| match connection_result {
+                Ok(connection) => {
+                    let peer_addr = connection.peer_addr()
+                        .map(|addr| addr.to_string())
+                        .unwrap_or_else(|_| "unknown".to_string());
+                    tracing::debug!("New connection from {}", peer_addr);
+                    future::ready(Some(connection))
+                }
+                Err(err) => {
+                    tracing::warn!("Failed to accept connection: {:?}", err);
+                    future::ready(None)
+                }
+            })
         .map(server::BaseChannel::with_defaults)
         // Limit channels to 1 per IP.
         //.max_channels_per_key(5, |t| t.transport().peer_addr().unwrap().ip())
         .map(|channel| {
-            tracing::debug!(ip=?channel.transport().peer_addr().unwrap().ip(), "Serving");
+            let peer_ip = channel.transport().peer_addr()
+                .map(|addr| addr.ip().to_string())
+                .unwrap_or_else(|_| "unknown".to_string());
+            
+            tracing::debug!("Serving requests from IP: {}", peer_ip);
             channel.execute(service.clone().serve())
         })
         .for_each(|service| async {

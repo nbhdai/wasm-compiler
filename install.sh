@@ -55,7 +55,7 @@ fi
 # 1. Install Dependencies (will skip if already installed)
 print_info "Ensuring podman and podman-docker are installed..."
 # Using pacman as per the original script. Adjust for other package managers if needed.
-pacman -Syu --noconfirm podman podman-compose
+#pacman -Syu --noconfirm podman podman-compose
 
 # 2. Create Application Directory and Copy Binary
 if [ ! -d "${APP_DIR}" ]; then
